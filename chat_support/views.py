@@ -22,8 +22,10 @@ class LoginViewList(LoginView):
     template_name = 'chat/number.html'
 
     def get_success_url(self):
-        room_number = self.request.POST.get('username')
-        return reverse('index', kwargs={'room_name': room_number})
+        user = self.request.POST.get('username')
+        print(user)
+        return reverse('index', kwargs={'room_name': user})
+
 
 # регистрация
 class RegisterUser(CreateView):
@@ -49,8 +51,9 @@ class PersonalArea(ListView, FormMixin):
     context_object_name = "messages"
     # form_class = RatingForm
 # забираем контекст
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
+        print(f'{context} ok')
         context['room_name'] = self.kwargs['room_name']
         return context
 # формируем сообщения для оценки
