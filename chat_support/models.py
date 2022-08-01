@@ -39,7 +39,7 @@ class ChatDialog(models.Model):
 
 
 class ChatMessage(models.Model):
-    author = models.IntegerField('пользователь')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='пользователь')
     dialog = models.ForeignKey(ChatDialog, on_delete=models.CASCADE, verbose_name='диалог', related_name='dialog_chat')
     create_at = models.DateTimeField('Дата', auto_now=True)
     body = models.TextField('Текст обращения')
@@ -53,7 +53,7 @@ class ChatMessage(models.Model):
 
 
 class Rating(models.Model):
-    message = models.ForeignKey(ChatMessage, on_delete=models.CASCADE, verbose_name='сообщение',
+    message = models.ForeignKey(ChatMessage, on_delete=models.CASCADE, verbose_name='сообщение, которое оцениваем',
                                 related_name='message_rating')
     star_1 = models.ForeignKey(RatingStar, on_delete=models.CASCADE, verbose_name='звезда_1', related_name='star_1',
                                default='1')
@@ -61,9 +61,11 @@ class Rating(models.Model):
                                default='1')
     star_3 = models.ForeignKey(RatingStar, on_delete=models.CASCADE, verbose_name='звезда_3', related_name='star_3',
                                default='1')
-    rated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name='пользователь',
+    rated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, verbose_name='кем поизведена оценка',
                                  related_name="user_rating")
     comment = models.TextField('комментарии', max_length=200, blank=True)
+
+    is_active = models.BooleanField('Активность', default=True)
 
     class Meta:
         verbose_name = 'Рейтинг'

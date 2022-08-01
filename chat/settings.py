@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'channels',
+    'rest_framework',
     'chat_support',
 ]
 
@@ -69,7 +70,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'chat_support.wsgi.application'
+WSGI_APPLICATION = 'chat.wsgi.application'
 
 
 # Database

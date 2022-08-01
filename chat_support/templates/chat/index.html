@@ -1,26 +1,53 @@
 {% extends "chat/base.html" %}
 {% block content %}
 
-<body>
-    What chat room would you like to enter?<br>
-    <input id="room-name-input" type="text" size="100"><br>
-    <input id="room-name-submit" type="button" value="Enter">
+        <a href="{% url 'logout' %}">Выйти</a>
+        <div>
+            {% csrf_token %}
+            <textarea id="message" name="message" placeholder="Введите текст"></textarea>
+            <button type="button" onclick="enterRoom()">Войти</button>
+        </div>
+        <!--<a href="/chat/{{room_name}}">Войти в чат</a>-->
+        <p>
+        <p> Оцените качество ответа на завершенные сеансы</p>
+            {% for message in messages %}
+                {{message}} <br>
+            <form method="POST">
+                {% csrf_token %}
+                <input hidden id="message_1" name="message_1" value="{{message}}">
+                {{form}}
+            <button type="submit" class="btn.btn-primary">Добавить</button>
+            </form>
 
-    <script>
-        document.querySelector('#room-name-input').focus();
-        document.querySelector('#room-name-input').onkeyup = function(e) {
-            if (e.keyCode === 13) {  // enter, return
-                document.querySelector('#room-name-submit').click();
-            }
-        };
 
-        document.querySelector('#room-name-submit').onclick = function(e) {
-            var roomName = document.querySelector('#room-name-input').value;
-            window.location.pathname = '/chat/' + roomName + '/';
+            {% endfor %}
+
+
+<script>
+    function enterRoom () {
+        const message = document.getElementById('message').value;
+        const csrfmiddlewaretoken = document.getElementsByName('csrfmiddlewaretoken')[0].value
+        let data = {
+            'body': message
         };
-    </script>
-</body>
-</html>
+        console.log(data);
+        fetch("/api/number_create/", {
+            method: "post",
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfmiddlewaretoken
+            },
+
+              //make sure to serialize your JSON body
+             body: JSON.stringify(data)
+            })
+            .then((response) => response.json())
+            .then((data) => {
+                window.location.href = '/chat/' + data.dialog + '/';
+            });
+    }
+</script>
 
 {% endblock content %}
 
