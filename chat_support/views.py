@@ -1,28 +1,27 @@
-from django.contrib import messages
 from django.contrib.auth import logout
-from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
+from django.contrib.auth import logout
+from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.views import LoginView, PasswordResetView, PasswordContextMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
-
 from django.urls import reverse, reverse_lazy
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
-from django.views import View
-from django.views.generic import CreateView, FormView, ListView, TemplateView, DetailView
+from django.views.generic import CreateView, FormView, ListView, DetailView
 from django.views.generic.edit import FormMixin
 from rest_framework import generics
 
 from chat_support.forms import RegisterUserForm, Auntification, RatingForm
 from chat_support.models import ChatMessage, ChatDialog, User
 from chat_support.serializers import ChatMessageSerializer
-
+from django.shortcuts import get_object_or_404
 
 def login_out(reguest):
     logout(reguest)
     return redirect('title')
+
 
 # титульная страница авторизации
 
@@ -33,7 +32,7 @@ class LoginViewList(LoginView):
     def get_success_url(self):
         user = self.request.POST.get('username')
         print(user)
-        return reverse('index', kwargs={'room_name': user})
+        return reverse('index', kwargs={'room_id': user})
 
 
 # регистрация
@@ -41,6 +40,7 @@ class RegisterUser(CreateView):
     form_class = RegisterUserForm
     template_name = 'chat/register.html'
     success_url = reverse_lazy('title')
+
 
 # забыли свой пароль
 
@@ -53,25 +53,27 @@ class PasswordResetConfirmView(PasswordContextMixin, FormView):
     template_name = 'chat/password_reset_confirm.html'
     success_url = 'title'
 
+
 # класс личного кабинета
 class PersonalArea(FormMixin, ListView):
     model = ChatMessage
     template_name = 'chat/index.html'
     context_object_name = "messages"
     form_class = RatingForm
-# забираем контекст
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         print(f'{context} ok')
-#         context['user'] = self.kwargs['room_name']
-#         return context
-# формируем сообщения для оценки
+
+    # формируем сообщения для оценки
     def get_queryset(self):
         return ChatMessage.objects.filter(author=self.request.user).order_by("-create_at")
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        dialogs = ChatDialog.objects.filter(is_active=True, messages__in=ChatMessage.objects.filter(author=self.request.user))
+        context['dialogs'] = dialogs
+        return context
+
     def get_success_url(self):
-        pk = self.kwargs['room_name']
-        return reverse('index', kwargs={'room_name': pk})
+        pk = self.kwargs['room_id']
+        return reverse('index', kwargs={'room_id': pk})
 
     def post(self, request, *args, **kwargs):
         form = self.get_form()
@@ -79,27 +81,26 @@ class PersonalArea(FormMixin, ListView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        print(self.object)
-        print(form.cleaned_data)
-        self.object.star_1 = form.cleaned_data['star_1']
-        self.object.star_2 = form.cleaned_data['star_2']
-        self.object.comment = form.cleaned_data['comment']
-        print(self.object.star_1)
-        print(self.object.message)
-        self.object.rated_by = self.request.user
-        print(self.object.rated_by)
-        # self.object.save()
+        message_id = self.request.POST.get('message_1')
+        message = get_object_or_404(ChatMessage, id=message_id)
+        self.object.message = message
+        self.object.is_active = False
+        self.object.save()
         return super().form_valid(form)
+
+
 
 # класс комнаты
 class PersonalRoom(DetailView):
     model = ChatDialog
     template_name = 'chat/room.html'
-    pk_url_kwarg = 'room_name'
-# получаем контекст
+    pk_url_kwarg = 'room_id'
+
+    # получаем контекст
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['last_message'] = ChatMessage.objects.filter(dialog=self.get_object()).last()
+        context['messages'] = ChatMessage.objects.filter(dialog=self.get_object())
+        context['dialog'] = self.get_object().id
         return context
 
 

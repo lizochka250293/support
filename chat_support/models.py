@@ -29,6 +29,7 @@ class User(AbstractUser):
 
 class ChatDialog(models.Model):
     start_date = models.DateTimeField('Дата создания', auto_now=True)
+    is_active = models.BooleanField('Активность', default=True)
 
     def __str__(self):
         return f'{self.start_date}'
@@ -40,12 +41,15 @@ class ChatDialog(models.Model):
 
 class ChatMessage(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='пользователь')
-    dialog = models.ForeignKey(ChatDialog, on_delete=models.CASCADE, verbose_name='диалог', related_name='dialog_chat')
+    dialog = models.ForeignKey(ChatDialog, on_delete=models.CASCADE, verbose_name='диалог', related_name='messages')
     create_at = models.DateTimeField('Дата', auto_now=True)
     body = models.TextField('Текст обращения')
 
     def __str__(self):
         return f'{self.author} - {self.body}'
+
+    def is_active(self):
+        return self.message_rating.count()
 
     class Meta:
         verbose_name = 'Сообщение'

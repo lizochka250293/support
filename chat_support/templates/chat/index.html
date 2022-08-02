@@ -8,18 +8,24 @@
             <button type="button" onclick="enterRoom()">Войти</button>
         </div>
         <!--<a href="/chat/{{room_name}}">Войти в чат</a>-->
+        <div>
+            {% for dialog in dialogs %}
+                <a href="{% url 'room' dialog.id %}">Перейти в диалог {{dialog.id}}</a>
+            {% endfor %}
+        </div>
         <p>
         <p> Оцените качество ответа на завершенные сеансы</p>
             {% for message in messages %}
+                {% if not message.is_active %}
                 {{message}} <br>
             <form method="POST">
                 {% csrf_token %}
-                <input hidden id="message_1" name="message_1" value="{{message}}">
+                <input hidden id="message_1" name="message_1" value="{{message.id}}">
                 {{form}}
             <button type="submit" class="btn.btn-primary">Добавить</button>
             </form>
 
-
+            {% endif %}
             {% endfor %}
 
 

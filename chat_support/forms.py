@@ -43,4 +43,4 @@ class RatingForm(forms.ModelForm):
 
     class Meta:
         model = Rating
-        fields = ("star_1", "star_2", 'comment',)
+        fields = ("star_1", "star_2", 'comment', )

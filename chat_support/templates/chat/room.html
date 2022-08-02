@@ -6,19 +6,20 @@
     <title>Chat Room</title>
 </head>
 <body>
-    <textarea id="chat-log" cols="100" rows="20">{{last_message}}
+    <textarea id="chat-log" cols="100" rows="20">{% for message in messages %}{{message.body}}&#10;{% endfor %}
 </textarea><br>
+    <input hidden id="chat-message-user" name="chat-message-user" value="{{user.username}}">
     <input id="chat-message-input" type="text" size="100"><br>
     <input id="chat-message-submit" type="button" value="Отправить">
-    {{ room_name|json_script:"room-name" }}
+    {{ dialog|json_script:"dialog" }}
     <script>
-        const roomName = JSON.parse(document.getElementById('room-name').textContent);
+        const dialog = JSON.parse(document.getElementById('dialog').textContent);
 
         const chatSocket = new WebSocket(
             'ws://'
             + window.location.host
             + '/ws/chat/'
-            + roomName
+            + dialog
             + '/'
         );
 
@@ -42,7 +43,8 @@
             const messageInputDom = document.querySelector('#chat-message-input');
             const message = messageInputDom.value;
             chatSocket.send(JSON.stringify({
-                'message': message
+                'message': message,
+                'user': document.querySelector('#chat-message-user').value
             }));
             messageInputDom.value = '';
         };

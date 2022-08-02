@@ -1,10 +1,13 @@
-import json
-import random
+from channels.db import database_sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
 import json
 from channels.generic.http import AsyncHttpConsumer
-from channels.db import database_sync_to_async
+from channels.generic.websocket import AsyncWebsocketConsumer
+from django.contrib.auth import get_user_model
 
+from chat_support.models import ChatMessage
+
+user = get_user_model()
 
 
 class ChatConsumer(AsyncWebsocketConsumer):
@@ -34,8 +37,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         message = text_data_json['message']
+        username = text_data_json['user']
+        print(username)
         # send_telegram(message)
-        # await self.write_message(message)
+        await self.write_message(message, username)
 
         # Send message to room group
         await self.channel_layer.group_send(
@@ -54,10 +59,9 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'message': message
         }))
 
-    # @database_sync_to_async
-    # def write_message(self, message):
-    #     Number.objects.create(number=self.room_name, session=self.sen.session_key, message=message)
-
+    @database_sync_to_async
+    def write_message(self, message, username):
+        ChatMessage.objects.create(dialog_id=self.room_name, body=message, author=user.objects.get(username=username))
 
 
 class LongPollConsumer(AsyncHttpConsumer):
