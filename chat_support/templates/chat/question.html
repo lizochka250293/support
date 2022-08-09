@@ -1,0 +1,7 @@
+{% extends "chat/base.html" %}
+{% block content %}
+
+<form action="{% url 'index' room_id %}">
+      <button type="submit">Задать вопрос</button>
+</form>
+{% endblock %}

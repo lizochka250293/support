@@ -40,13 +40,13 @@ class ChatDialog(models.Model):
 
 
 class ChatMessage(models.Model):
-    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='пользователь')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='пользователь', related_name='user')
     dialog = models.ForeignKey(ChatDialog, on_delete=models.CASCADE, verbose_name='диалог', related_name='messages')
     create_at = models.DateTimeField('Дата', auto_now=True)
     body = models.TextField('Текст обращения')
 
     def __str__(self):
-        return f'{self.author} - {self.body}'
+        return f'{self.author} - {self.body} - {self.dialog}'
 
     def is_active(self):
         return self.message_rating.count()

@@ -1,14 +1,15 @@
 from django.contrib.auth import logout
-from django.contrib.auth import logout
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.views import LoginView, PasswordResetView, PasswordContextMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.shortcuts import get_object_or_404
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
+from django.views import View
 from django.views.generic import CreateView, FormView, ListView, DetailView
 from django.views.generic.edit import FormMixin
 from rest_framework import generics
@@ -16,7 +17,7 @@ from rest_framework import generics
 from chat_support.forms import RegisterUserForm, Auntification, RatingForm
 from chat_support.models import ChatMessage, ChatDialog, User
 from chat_support.serializers import ChatMessageSerializer
-from django.shortcuts import get_object_or_404
+
 
 def login_out(reguest):
     logout(reguest)
@@ -32,7 +33,13 @@ class LoginViewList(LoginView):
     def get_success_url(self):
         user = self.request.POST.get('username')
         print(user)
-        return reverse('index', kwargs={'room_id': user})
+        return reverse('question')
+
+# класс перехода с кнопкой задать вопрос
+def question(request):
+    name = request.user.username
+    context = {'room_id': name}
+    return render(request=request, template_name='chat/question.html', context=context)
 
 
 # регистрация
@@ -67,7 +74,8 @@ class PersonalArea(FormMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        dialogs = ChatDialog.objects.filter(is_active=True, messages__in=ChatMessage.objects.filter(author=self.request.user))
+        dialogs = ChatDialog.objects.filter(is_active=True,
+                                            messages__in=ChatMessage.objects.filter(author=self.request.user))
         context['dialogs'] = dialogs
         return context
 
@@ -89,7 +97,6 @@ class PersonalArea(FormMixin, ListView):
         return super().form_valid(form)
 
 
-
 # класс комнаты
 class PersonalRoom(DetailView):
     model = ChatDialog
@@ -101,8 +108,14 @@ class PersonalRoom(DetailView):
         context = super().get_context_data(**kwargs)
         context['messages'] = ChatMessage.objects.filter(dialog=self.get_object())
         context['dialog'] = self.get_object().id
+        context['user'] = ''
+        for i in ChatMessage.objects.filter(dialog=self.get_object()):
+            context['user'] = i.author
         return context
 
+    def get_success_url(self):
+        pk = self.kwargs['room_id']
+        return reverse('index', kwargs={'room_id': pk})
 
 
 class ChatDialogCreateApiView(generics.CreateAPIView):

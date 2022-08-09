@@ -1,6 +1,6 @@
 from django.urls import path, include
 from . import views
-from .views import login_out, password_reset_request, ResetPasswordView
+from .views import login_out, password_reset_request, ResetPasswordView, question
 from django.contrib.auth.views import PasswordChangeView, PasswordResetConfirmView
 from django.contrib.auth import views as auth_views
 
@@ -9,6 +9,7 @@ urlpatterns = [
     path('api/number_create/', views.ChatDialogCreateApiView.as_view(), name='number_api'),
     # path('add-rating/', views.AddStarRating.as_view, name='add_rating'),
     path('', views.LoginViewList.as_view(), name='title'),
+    path('question/', question, name='question'),
     path('number/<str:room_id>/', views.PersonalArea.as_view(), name='index'),
     path('chat/<str:room_id>/', views.PersonalRoom.as_view(), name='room'),
     path('loginout/', login_out, name='logout'),
