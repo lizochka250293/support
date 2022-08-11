@@ -6,13 +6,16 @@
     <title>Chat Room</title>
 </head>
 <body>
+    <input id="chat-message-user" hidden value="{{user}}">
+
     <textarea id="chat-log" cols="100" rows="20">{% for message in messages %}{{message.author}}{{message.body}}&#10;{% endfor %}
 </textarea><br>
     <input id="chat-message-input" type="text" size="100"><br>
     <input id="chat-message-submit" type="button" value="Отправить">
     {{ dialog|json_script:"dialog" }}
-    <a href="{% url 'index' user %}">Завершить диалог</a>
+    <button id="close-chat" type="button">Завершить диалог</button>
 
+<!--     href="{% url 'index' user %}"-->
 
     <script>
         const dialog = JSON.parse(document.getElementById('dialog').textContent);
@@ -50,6 +53,18 @@
             }));
             messageInputDom.value = '';
         };
+
+        function closeChat(event) {
+            chatSocket.send(JSON.stringify({
+                'action': 'close',
+                'chat': dialog
+            }));
+            chatSocket.close()
+            let user = document.querySelector('#chat-message-user').value
+            window.location = `/number/${user}`
+        }
+
+        document.querySelector('#close-chat').addEventListener('click', closeChat)
     </script>
 </body>
 </html>

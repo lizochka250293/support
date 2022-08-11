@@ -5,7 +5,7 @@ from channels.generic.http import AsyncHttpConsumer
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.contrib.auth import get_user_model
 
-from chat_support.models import ChatMessage
+from chat_support.models import ChatMessage, ChatDialog
 
 user = get_user_model()
 
@@ -36,8 +36,15 @@ class ChatConsumer(AsyncWebsocketConsumer):
     # Receive message from WebSocket
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
+
+        if text_data_json.get('action') == 'close':
+            await self.chat_close(text_data_json.get('chat'))
+            return
+
         message = text_data_json['message']
         username = text_data_json['user']
+
+
         print(username)
         # send_telegram(message)
         await self.write_message(message, username)
@@ -62,6 +69,12 @@ class ChatConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def write_message(self, message, username):
         ChatMessage.objects.create(dialog_id=self.room_name, body=message, author=user.objects.get(username=username))
+
+    @database_sync_to_async
+    def chat_close(self, dialog):
+        dialog_close = ChatDialog.objects.get(id=dialog)
+        dialog_close.is_active = False
+        dialog_close.save()
 
 
 class LongPollConsumer(AsyncHttpConsumer):

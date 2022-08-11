@@ -1,3 +1,4 @@
+from django.db.models import Subquery, Q
 from django.contrib.auth import logout
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.tokens import default_token_generator
@@ -74,8 +75,11 @@ class PersonalArea(FormMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        dialogs = ChatDialog.objects.filter(is_active=True,
-                                            messages__in=ChatMessage.objects.filter(author=self.request.user))
+        # message = ChatMessage.objects.filter(author=self.request.user)
+        dialogs = ChatDialog.objects.filter(is_active=True, messages__author=self.request.user).distinct()
+        #.annotate(
+           # message=Q('messages')
+        #)
         context['dialogs'] = dialogs
         return context
 

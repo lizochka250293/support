@@ -11,6 +11,9 @@
         <div>
             {% for dialog in dialogs %}
                 <a href="{% url 'room' dialog.id %}">Перейти в диалог {{dialog.id}}</a>
+            <p>
+                {{dialog.messages.first}}
+            </p>
             {% endfor %}
         </div>
         <p>
