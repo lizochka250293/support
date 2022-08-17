@@ -34,6 +34,9 @@ class ChatDialog(models.Model):
     def __str__(self):
         return f'{self.start_date}'
 
+    def check_active(self):
+        return self.ratings.count()
+
     class Meta:
         verbose_name = 'Диалог'
         verbose_name_plural = 'Диалоги'
@@ -48,8 +51,6 @@ class ChatMessage(models.Model):
     def __str__(self):
         return f'{self.author} - {self.body} - {self.dialog}'
 
-    def is_active(self):
-        return self.message_rating.count()
 
     class Meta:
         verbose_name = 'Сообщение'
@@ -57,8 +58,7 @@ class ChatMessage(models.Model):
 
 
 class Rating(models.Model):
-    message = models.ForeignKey(ChatMessage, on_delete=models.CASCADE, verbose_name='сообщение, которое оцениваем',
-                                related_name='message_rating')
+    dialog = models.ForeignKey(ChatDialog, on_delete=models.CASCADE, verbose_name='диалог, который оцениваем', related_name='ratings')
     star_1 = models.ForeignKey(RatingStar, on_delete=models.CASCADE, verbose_name='звезда_1', related_name='star_1',
                                default='1')
     star_2 = models.ForeignKey(RatingStar, on_delete=models.CASCADE, verbose_name='звезда_2', related_name='star_2',
@@ -69,12 +69,12 @@ class Rating(models.Model):
                                  related_name="user_rating")
     comment = models.TextField('комментарии', max_length=200, blank=True)
 
-    is_active = models.BooleanField('Активность', default=True)
+    is_actives = models.BooleanField('Активность', default=True)
 
     class Meta:
         verbose_name = 'Рейтинг'
         verbose_name_plural = 'Рейтинги'
-        unique_together = ('star_1', 'star_2', 'message')
+        unique_together = ('star_1', 'star_2', 'dialog')
 
     def __str__(self):
         return f'{self.star_1} \n {self.star_2} \n {self.star_3}'

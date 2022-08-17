@@ -7,29 +7,30 @@
             <textarea id="message" name="message" placeholder="Введите текст"></textarea>
             <button type="button" onclick="enterRoom()">Войти</button>
         </div>
-        <!--<a href="/chat/{{room_name}}">Войти в чат</a>-->
+
+        <div>
+            {% for dialog_a in dialogs_active %}
+                <a href="{% url 'room' dialog_a.id %}">Перейти в диалог {{dialog_a.id}}</a>
+            {% endfor %}
+        </div>
+        <p> Оцените качество ответа на завершенные сеансы</p>
         <div>
             {% for dialog in dialogs %}
-                <a href="{% url 'room' dialog.id %}">Перейти в диалог {{dialog.id}}</a>
+            {% if not dialog.check_active %}
             <p>
                 {{dialog.messages.first}}
             </p>
-            {% endfor %}
-        </div>
-        <p>
-        <p> Оцените качество ответа на завершенные сеансы</p>
-            {% for message in messages %}
-                {% if not message.is_active %}
-                {{message}} <br>
+             <a href="{% url 'room' dialog.id %}">Посмотреть диалог {{dialog.id}}</a>
             <form method="POST">
                 {% csrf_token %}
-                <input hidden id="message_1" name="message_1" value="{{message.id}}">
+                <input hidden id="dialog" name="dialog" value="{{dialog.id}}">
                 {{form}}
             <button type="submit" class="btn.btn-primary">Добавить</button>
             </form>
-
             {% endif %}
             {% endfor %}
+        </div>
+
 
 
 <script>

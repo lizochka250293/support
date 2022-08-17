@@ -52,7 +52,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'chat_support.urls'
+ROOT_URLCONF = 'chat.urls'
 
 TEMPLATES = [
     {
@@ -102,6 +102,9 @@ AUTH_PASSWORD_VALIDATORS = [
     # },
 ]
 
+LOGIN_URL = '/'
+
+LOGIN_REDIRECT_URL = 'question/'
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/

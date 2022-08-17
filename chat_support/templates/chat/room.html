@@ -15,7 +15,6 @@
     {{ dialog|json_script:"dialog" }}
     <button id="close-chat" type="button">Завершить диалог</button>
 
-<!--     href="{% url 'index' user %}"-->
 
     <script>
         const dialog = JSON.parse(document.getElementById('dialog').textContent);
@@ -61,7 +60,7 @@
             }));
             chatSocket.close()
             let user = document.querySelector('#chat-message-user').value
-            window.location = `/number/${user}`
+            window.location = `/number/`
         }
 
         document.querySelector('#close-chat').addEventListener('click', closeChat)
