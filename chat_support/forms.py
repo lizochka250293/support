@@ -32,19 +32,19 @@ class PasswordReset(forms.Form):
 class RatingForm(forms.ModelForm):
 
 
-    # star_1 = forms.ModelChoiceField(
-    #     queryset=RatingStar.objects.all(), widget=forms.RadioSelect(attrs={'class':'selector'}), empty_label=None,
-    #
-    # )
-    # star_2 = forms.ModelChoiceField(
-    #     queryset=RatingStar.objects.all(), widget=forms.RadioSelect(attrs={'class':'selector'}), empty_label=None,
-    #
-    # )
+    star_1 = forms.ModelChoiceField(label='Оценка скорости обслуживания',
+        queryset=RatingStar.objects.all(), widget=forms.RadioSelect(attrs={'class':'selector'}), empty_label=None,
+
+    )
+    star_2 = forms.ModelChoiceField(label='Оценка еще чего-то',
+        queryset=RatingStar.objects.all(), widget=forms.RadioSelect(attrs={'class':'selector'}), empty_label=None,
+
+    )
     # star_3 = forms.ModelChoiceField(
     #     queryset=RatingStar.objects.all(), widget=forms.RadioSelect(attrs={'class':'selector'}), empty_label=None,
     #
     # )
-    # comment = forms.CharField(label='', widget=Textarea(attrs={'rows': 3}))
+    comment = forms.CharField(label='Оставьте комментарии', widget=Textarea(attrs={'rows': 3}))
 
     class Meta:
         model = Rating

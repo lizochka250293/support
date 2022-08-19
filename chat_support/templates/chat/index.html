@@ -20,7 +20,7 @@
             <p>
                 {{dialog.messages.first}}
             </p>
-             <a href="{% url 'room' dialog.id %}">Посмотреть диалог {{dialog.id}}</a>
+             <a href="{% url 'detail_dialog' dialog.id %}">Посмотреть диалог {{dialog.id}}</a>
             <form method="POST">
                 {% csrf_token %}
                 <input hidden id="dialog" name="dialog" value="{{dialog.id}}">

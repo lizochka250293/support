@@ -1,0 +1,7 @@
+{% extends "chat/base.html" %}
+{% block content %}
+{% for item in dialog %}
+    {{item.author_id}}
+    {{item.body}}
+{% endfor %}
+{% endblock %}

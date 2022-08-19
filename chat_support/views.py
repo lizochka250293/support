@@ -1,4 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.sites import requests
 from django.db.models import Subquery, Q
 from django.contrib.auth import logout
 from django.contrib.auth.forms import PasswordResetForm
@@ -137,37 +138,26 @@ class ChatDialogCreateApiView(generics.CreateAPIView):
     serializer_class = ChatMessageSerializer
 
     def perform_create(self, serializer):
-        """Создается первое соо,щение и для него диалог"""
+        """Создается первое сообщение и для него диалог"""
         chat_dialog = ChatDialog.objects.create()
         message = serializer.save(author=self.request.user, dialog=chat_dialog)
         # В телегу отправляем здесь
-        print(f"Диалог: http://127.0.0.1:8000/chat/9/{chat_dialog.id}. Соо,щение: {message.body}")
-        # body = serializer.data['body']
-        # ChatMessage.objects.create(body=body, author=self.request.user, dialog=chat_dialog)
-        # send_telegram(serializer.data['message'], serializer.data['number'])
+        # send_telegram(text=f'{message.body}', number=f'{chat_dialog.id}')
+
+def detail_dialog(request, pk):
+    dialog = ChatMessage.objects.filter(dialog_id=pk)
+    print(dialog)
+    return render(request, 'chat/detail_dialog.html', {'dialog': dialog})
 
 
-def password_reset_request(request):
-    if request.method == "POST":
-        password_reset_form = PasswordResetForm(request.POST)
-        if password_reset_form.is_valid():
-            mail = password_reset_form.cleaned_data['email']
-            user = User.objects.get(email=mail)  # email в форме регистрации проверен на уникальность
-            subject = 'Запрошен сброс пароля'
-            email_template_name = "chat/email_password_reset.html"
-            cont = {
-                "email": user.email,
-                'domain': '127.0.0.1:8000',  # доменное имя сайта
-                'site_name': 'Website',  # название своего сайта
-                "uid": urlsafe_base64_encode(force_bytes(user.pk)),  # шифруем идентификатор
-                "user": user,  # чтобы обратиться в письме по логину пользователя
-                'token': default_token_generator.make_token(user),  # генерируем токен
-                'protocol': 'http',
-            }
-            msg_html = render_to_string(email_template_name, cont)
-
-            return redirect("/password_reset/done/")
-    else:
-        password_reset_form = PasswordResetForm()
-    return render(request=request, template_name="chat/password_reset.html",
-                  context={"password_reset_form": password_reset_form})
+# def send_telegram(text: str, number: str):
+#     api_token = ""
+#     url = "https://api.telegram.org/bot"
+#     channel_id = ""
+#     url += api_token
+#     method = url + "/sendMessage"
+#     to_send = f'{text}, http://127.0.0.1:8000/chat/{number}/'
+#     r = requests.post(method, data={
+#         "chat_id": channel_id,
+#         "text": to_send
+#     })
