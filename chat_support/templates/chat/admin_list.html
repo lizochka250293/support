@@ -1,0 +1,12 @@
+{% extends "chat/base.html" %}
+{% block content %}
+<a href="{% url 'logout' %}">Выйти</a>
+<form action="#" method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Добавить администратора</button>
+</form>
+{% for item in rating %}
+<p><a href="{% url 'detail_dialog' item.dialog.id %}">Посмотреть диалог {{item.dialog.id}}</a> | {{item.star_1}}</p>
+{% endfor %}
+{% endblock %}

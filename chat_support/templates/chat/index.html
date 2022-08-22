@@ -7,7 +7,13 @@
             <textarea id="message" name="message" placeholder="Введите текст"></textarea>
             <button type="button" onclick="enterRoom()">Войти</button>
         </div>
-
+        {% if user.is_staff %}
+            <p>Hello, admin.</p>
+            {% for item in all_dialogs %}
+                 <a href="{% url 'room' item.id %}">Перейти в диалог {{item.id}}</a>
+            {% endfor %}
+        {% else %}
+            <p>Hello, ordinary visitor.</p>
         <div>
             {% for dialog_a in dialogs_active %}
                 <a href="{% url 'room' dialog_a.id %}">Перейти в диалог {{dialog_a.id}}</a>
@@ -30,7 +36,7 @@
             {% endif %}
             {% endfor %}
         </div>
-
+        {% endif %}
 
 
 <script>

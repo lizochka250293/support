@@ -17,8 +17,8 @@ from django.views.generic import CreateView, FormView, ListView, DetailView
 from django.views.generic.edit import FormMixin
 from rest_framework import generics
 
-from chat_support.forms import RegisterUserForm, Auntification, RatingForm, PasswordReset
-from chat_support.models import ChatMessage, ChatDialog, User
+from chat_support.forms import RegisterUserForm, Auntification, RatingForm, PasswordReset, StaffForm
+from chat_support.models import ChatMessage, ChatDialog, User, Rating
 from chat_support.serializers import ChatMessageSerializer
 
 
@@ -41,8 +41,13 @@ class LoginViewList(LoginView):
 # класс перехода с кнопкой задать вопрос
 def question(request):
     name = request.user.username
-    context = {'room_id': name}
-    return render(request=request, template_name='chat/question.html', context=context)
+    print(type(name))
+    if name == '308':
+        print('ok')
+        return redirect('admin_rating')
+    else:
+        context = {'room_id': name}
+        return render(request=request, template_name='chat/question.html', context=context)
 
 
 # регистрация
@@ -89,8 +94,12 @@ class PersonalArea(LoginRequiredMixin, FormMixin, ListView):
         context = super().get_context_data(**kwargs)
         dialogs_not_active = ChatDialog.objects.filter(is_active=False, messages__author=self.request.user).distinct()
         dialogs_active = ChatDialog.objects.filter(is_active=True, messages__author=self.request.user).distinct()
+        all_dialogs = ChatDialog.objects.filter(is_active=True)
+        rating = Rating.objects.all()
         context['dialogs'] = dialogs_not_active
         context['dialogs_active'] = dialogs_active
+        context['all_dialogs'] = all_dialogs
+        context['rating'] = rating
         return context
 
     def get_success_url(self):
@@ -148,6 +157,35 @@ def detail_dialog(request, pk):
     dialog = ChatMessage.objects.filter(dialog_id=pk)
     print(dialog)
     return render(request, 'chat/detail_dialog.html', {'dialog': dialog})
+#как сделать выплывающее окно что все ок?
+def admin_rating(request):
+    rating = Rating.objects.all()
+    if request.method == 'POST':
+        form = StaffForm(request.POST)
+        if form.is_valid():
+            cur_user = User.objects.filter(username=form.cleaned_data['username'])
+            user = cur_user[0]
+            if user:
+                user_is_staff = User.objects.filter(username=form.cleaned_data['username']).update(is_staff=True)
+                print('ok')
+                return render(request, 'chat/admin_list.html', {'rating': rating, 'form': form})
+            else:
+                pass
+    else:
+        form = StaffForm()
+        staff = User.objects.filter(is_staff=True)
+        dict_staff = {}
+        for user_staff in staff:
+            dict_staff[user_staff.id] = []
+            dialog = ChatMessage.objects.filter(author_id=user_staff.id)
+            print(dialog)
+            for i in dialog:
+                dict_staff[user_staff.id].append(i.dialog_id)
+        print(dict_staff)
+        rating = Rating.objects.filter(dialog_id='15')
+        return render(request, 'chat/admin_list.html', {'rating': rating, 'form': form})
+
+
 
 
 # def send_telegram(text: str, number: str):
