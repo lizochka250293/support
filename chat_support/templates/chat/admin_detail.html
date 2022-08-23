@@ -1,0 +1,7 @@
+{% extends "chat/base.html" %}
+{% block content %}
+{{user}}
+{% for k, v in dict_dialog.items %}
+    <p><a href="{% url 'detail_dialog' k %}">Посмотреть диалог {{k}}</a> {{v}}</p>
+{% endfor %}
+{% endblock %}

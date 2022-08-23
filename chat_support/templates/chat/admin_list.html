@@ -6,7 +6,10 @@
     {{ form.as_p }}
     <button type="submit">Добавить администратора</button>
 </form>
-{% for item in rating %}
-<p><a href="{% url 'detail_dialog' item.dialog.id %}">Посмотреть диалог {{item.dialog.id}}</a> | {{item.star_1}}</p>
+{% for k, v in rating.items %}
+    {% for i in v %}
+<p><a href="{% url 'admin_detail' k %}">Посмотреть детали {{k}}</a> - {{i}}</p>
+    {% endfor %}
 {% endfor %}
+
 {% endblock %}

@@ -178,13 +178,48 @@ def admin_rating(request):
         for user_staff in staff:
             dict_staff[user_staff.id] = []
             dialog = ChatMessage.objects.filter(author_id=user_staff.id)
-            print(dialog)
             for i in dialog:
                 dict_staff[user_staff.id].append(i.dialog_id)
-        print(dict_staff)
-        rating = Rating.objects.filter(dialog_id='15')
-        return render(request, 'chat/admin_list.html', {'rating': rating, 'form': form})
+        rating = Rating.objects.all()
+        dict_star = {}
+        for i in rating:
+            dict_star[i.dialog_id]=[i.star_1_id, i.star_2_id]
+        star = {}
+        for k, v in dict_staff.items():
+            star[k] = []
+            for i in v:
+                if i in dict_star:
+                    star[k].append(dict_star[i])
+        total = {}
+        for k, v in star.items():
+            total[k] = []
+            total[k].append([sum(x)/len(v) for x in zip(*v)])
+        user = User.objects.all()
+        dict_user = {}
+        for i in user:
+            dict_user[i.id]=i.username
+        total_user = {}
+        for k, v in total.items():
+            for i, n in dict_user.items():
+                if k == i:
+                    total_user[dict_user[i]] = v
+        print(total_user)
+        return render(request, 'chat/admin_list.html', {'rating': total_user, 'form': form})
 
+def admin_detail(request, slug):
+    user = User.objects.get(username=slug)
+    print(user.id)
+    dialog = ChatMessage.objects.filter(author_id=user.id)
+    dict_dialog = {}
+    for i in dialog:
+        dict_dialog[i.dialog_id]=[]
+        print(i.dialog_id)
+        rating = Rating.objects.get(dialog_id=i.dialog_id)
+        print(rating.star_1_id)
+        dict_dialog[i.dialog_id].append(rating.star_1_id)
+        dict_dialog[i.dialog_id].append(rating.star_2_id)
+    print(dict_dialog)
+    return render(request, 'chat/admin_detail.html', {'user': user, 'dict_dialog': dict_dialog})
 
 
 

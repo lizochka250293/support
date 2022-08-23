@@ -77,4 +77,4 @@ class Rating(models.Model):
         unique_together = ('star_1', 'star_2', 'dialog')
 
     def __str__(self):
-        return f'{self.star_1} \n {self.star_2} \n {self.star_3}'
+        return f'{self.star_1} - {self.star_2}'
