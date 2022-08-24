@@ -6,6 +6,22 @@
     {{ form.as_p }}
     <button type="submit">Добавить администратора</button>
 </form>
+
+{% if messages %}
+{% for message in messages %}
+<div>
+    {{ message }}
+</div>
+{% endfor %}
+{% endif %}
+
+{% for user in users %}
+<div>
+    <p>{{ user.username }}</p>
+    <p>{{ user.get_rating }}</p>
+</div>
+{% endfor %}
+
 {% for k, v in rating.items %}
     {% for i in v %}
 <p><a href="{% url 'admin_detail' k %}">Посмотреть детали {{k}}</a> - {{i}}</p>

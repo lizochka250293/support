@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from decimal import Decimal
 
 
 class StarChoises(models.IntegerChoices):
@@ -26,6 +27,22 @@ class User(AbstractUser):
     def __str__(self):
         return self.username
 
+    def get_rating(self):
+        chat_messages = self.user_messages.all()
+        dialogs = set()
+        [dialogs.add(m.dialog) for m in chat_messages]
+        stars_1 = []
+        stars_2 = []
+        for dialog in dialogs:
+            for rating in dialog.ratings.all():
+                stars_1.append(rating.star_1.value)
+                stars_2.append(rating.star_2.value)
+        if len(stars_1) and len(stars_2):
+            star_1_total = str(Decimal(str(sum(stars_1))) / Decimal(str(len(stars_1))))
+
+            star_2_total = str(Decimal(str(sum(stars_2))) / Decimal(str(len(stars_2))))
+            return f'{star_1_total}, {star_2_total}'
+        return 'Нет рейтинга'
 
 class ChatDialog(models.Model):
     start_date = models.DateTimeField('Дата создания', auto_now=True)
@@ -43,8 +60,8 @@ class ChatDialog(models.Model):
 
 
 class ChatMessage(models.Model):
-    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='пользователь', related_name='user')
-    dialog = models.ForeignKey(ChatDialog, on_delete=models.CASCADE, verbose_name='диалог', related_name='messages')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='пользователь', related_name='user_messages')
+    dialog = models.ForeignKey(ChatDialog, on_delete=models.CASCADE, verbose_name='диалог', related_name='dialog_messages')
     create_at = models.DateTimeField('Дата', auto_now=True)
     body = models.TextField('Текст обращения')
 

@@ -1,23 +1,17 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.sites import requests
-from django.db.models import Subquery, Q
 from django.contrib.auth import logout
-from django.contrib.auth.forms import PasswordResetForm
-from django.contrib.auth.tokens import default_token_generator
-from django.contrib.auth.views import LoginView, PasswordResetView, PasswordContextMixin
-from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import LoginView
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, redirect
-from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode
-from django.views import View
-from django.views.generic import CreateView, FormView, ListView, DetailView
+from django.views.generic import CreateView, ListView, DetailView
 from django.views.generic.edit import FormMixin
 from rest_framework import generics
 
-from chat_support.forms import RegisterUserForm, Auntification, RatingForm, PasswordReset, StaffForm
+from chat_support.forms import RegisterUserForm, RatingForm, PasswordReset, StaffForm
 from chat_support.models import ChatMessage, ChatDialog, User, Rating
 from chat_support.serializers import ChatMessageSerializer
 
@@ -30,19 +24,18 @@ def login_out(reguest):
 # титульная страница авторизации
 
 class LoginViewList(LoginView):
-    form_class = Auntification
+    form_class = AuthenticationForm
     template_name = 'chat/number.html'
 
-    # def get_success_url(self):
-    #     user = self.request.POST.get('username')
-    #     print(user)
-    #     return reverse('question')
 
 # класс перехода с кнопкой задать вопрос
+
+
+@login_required
 def question(request):
     name = request.user.username
-    print(type(name))
-    if name == '308':
+    print(name)
+    if request.user.is_superuser:
         print('ok')
         return redirect('admin_rating')
     else:
@@ -92,8 +85,8 @@ class PersonalArea(LoginRequiredMixin, FormMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        dialogs_not_active = ChatDialog.objects.filter(is_active=False, messages__author=self.request.user).distinct()
-        dialogs_active = ChatDialog.objects.filter(is_active=True, messages__author=self.request.user).distinct()
+        dialogs_not_active = ChatDialog.objects.filter(is_active=False, dialog_messages__author=self.request.user).distinct()
+        dialogs_active = ChatDialog.objects.filter(is_active=True, dialog_messages__author=self.request.user).distinct()
         all_dialogs = ChatDialog.objects.filter(is_active=True)
         rating = Rating.objects.all()
         context['dialogs'] = dialogs_not_active
@@ -123,7 +116,7 @@ class PersonalArea(LoginRequiredMixin, FormMixin, ListView):
 # класс комнаты
 class PersonalRoom(LoginRequiredMixin, DetailView):
     model = ChatDialog
-    template_name = 'chat/room.html'
+    template_name = 'chat/room_2.html'
     pk_url_kwarg = 'room_id'
 
     # получаем контекст
@@ -152,21 +145,25 @@ class ChatDialogCreateApiView(generics.CreateAPIView):
         message = serializer.save(author=self.request.user, dialog=chat_dialog)
         # В телегу отправляем здесь
         # send_telegram(text=f'{message.body}', number=f'{chat_dialog.id}')
-
+@login_required
 def detail_dialog(request, pk):
     dialog = ChatMessage.objects.filter(dialog_id=pk)
     print(dialog)
     return render(request, 'chat/detail_dialog.html', {'dialog': dialog})
+
 #как сделать выплывающее окно что все ок?
+@login_required
 def admin_rating(request):
     rating = Rating.objects.all()
+    users = User.objects.filter(is_staff=True)
     if request.method == 'POST':
         form = StaffForm(request.POST)
         if form.is_valid():
+            messages.add_message(request, messages.SUCCESS, 'Успешно до,авлено!')
             cur_user = User.objects.filter(username=form.cleaned_data['username'])
             user = cur_user[0]
             if user:
-                user_is_staff = User.objects.filter(username=form.cleaned_data['username']).update(is_staff=True)
+                User.objects.filter(username=form.cleaned_data['username']).update(is_staff=True)
                 print('ok')
                 return render(request, 'chat/admin_list.html', {'rating': rating, 'form': form})
             else:
@@ -197,15 +194,16 @@ def admin_rating(request):
         user = User.objects.all()
         dict_user = {}
         for i in user:
-            dict_user[i.id]=i.username
+            dict_user[i.id] = i.username
         total_user = {}
         for k, v in total.items():
             for i, n in dict_user.items():
                 if k == i:
                     total_user[dict_user[i]] = v
         print(total_user)
-        return render(request, 'chat/admin_list.html', {'rating': total_user, 'form': form})
+    return render(request, 'chat/admin_list.html', {'rating': total_user, 'form': form, 'users': users})
 
+@login_required
 def admin_detail(request, slug):
     user = User.objects.get(username=slug)
     print(user.id)
