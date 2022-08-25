@@ -3,10 +3,23 @@ body {
     flex-direction: column;
     justify-content: space-between;
 }
+.question {
+    margin: auto;
+}
+
+.index {
+    margin-left: auto;
+    margin-right: auto;
+}
+
 
 main {
     display: flex;
     justify-content: center;
+}
+
+li {
+  list-style-type: none;
 }
 
 .messages {
@@ -67,7 +80,8 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: auto;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .form-wrap {

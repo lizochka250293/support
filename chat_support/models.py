@@ -1,6 +1,7 @@
+from decimal import Decimal
+
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from decimal import Decimal
 
 
 class StarChoises(models.IntegerChoices):
@@ -44,6 +45,7 @@ class User(AbstractUser):
             return f'{star_1_total}, {star_2_total}'
         return 'Нет рейтинга'
 
+
 class ChatDialog(models.Model):
     start_date = models.DateTimeField('Дата создания', auto_now=True)
     is_active = models.BooleanField('Активность', default=True)
@@ -60,14 +62,15 @@ class ChatDialog(models.Model):
 
 
 class ChatMessage(models.Model):
-    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='пользователь', related_name='user_messages')
-    dialog = models.ForeignKey(ChatDialog, on_delete=models.CASCADE, verbose_name='диалог', related_name='dialog_messages')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='пользователь',
+                               related_name='user_messages')
+    dialog = models.ForeignKey(ChatDialog, on_delete=models.CASCADE, verbose_name='диалог',
+                               related_name='dialog_messages')
     create_at = models.DateTimeField('Дата', auto_now=True)
     body = models.TextField('Текст обращения')
 
     def __str__(self):
         return f'{self.author} - {self.body} - {self.dialog}'
-
 
     class Meta:
         verbose_name = 'Сообщение'
@@ -75,7 +78,8 @@ class ChatMessage(models.Model):
 
 
 class Rating(models.Model):
-    dialog = models.ForeignKey(ChatDialog, on_delete=models.CASCADE, verbose_name='диалог, который оцениваем', related_name='ratings')
+    dialog = models.ForeignKey(ChatDialog, on_delete=models.CASCADE, verbose_name='диалог, который оцениваем',
+                               related_name='ratings')
     star_1 = models.ForeignKey(RatingStar, on_delete=models.CASCADE, verbose_name='звезда_1', related_name='star_1',
                                default='1')
     star_2 = models.ForeignKey(RatingStar, on_delete=models.CASCADE, verbose_name='звезда_2', related_name='star_2',

@@ -2,10 +2,11 @@
 {% block content %}
 
         <a href="{% url 'logout' %}">Выйти</a>
+        <div class="index">
         <div>
             {% csrf_token %}
-            <textarea id="message" name="message" placeholder="Введите текст"></textarea>
-            <button type="button" onclick="enterRoom()">Войти</button>
+            <textarea cols="60" rows="5" id="message" name="message" placeholder="Введите текст"></textarea>
+            <button class="index_button" type="button" onclick="enterRoom()">Войти</button>
         </div>
         {% if user.is_staff %}
             <p>Hello, admin.</p>
@@ -16,9 +17,12 @@
             <p>Hello, ordinary visitor.</p>
         <div>
             {% for dialog_a in dialogs_active %}
-                <a href="{% url 'room' dialog_a.id %}">Перейти в диалог {{dialog_a.id}}</a>
+            <ul>
+                <li><a href="{% url 'room' dialog_a.id %}">Перейти в диалог {{dialog_a.id}}</a></li>
+            </ul>
             {% endfor %}
         </div>
+        {% if dialogs %}
         <p> Оцените качество ответа на завершенные сеансы</p>
         <div>
             {% for dialog in dialogs %}
@@ -37,6 +41,8 @@
             {% endfor %}
         </div>
         {% endif %}
+        {% endif %}
+        </div>
 
 
 <script>

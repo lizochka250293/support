@@ -17,51 +17,16 @@
             <div class="messages">
                 <div class="message">
                     <div class="message__data">
-                        <p>Username</p>
+                        {% for message in messages %}
+                        {% if not message.author.is_stuff %}
+                        <p>Username {{message.author}}</p>
+                        {% endif %}
                         <p>12:00</p>
                     </div>
                     <div class="message__body">
-                        <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Architecto, eligendi. Minima ipsum ut
-                            ullam
-                            magnam dignissimos odit maiores qui vero! Libero, reiciendis. Placeat totam eaque quos id fugit
-                            dolor quisquam.</p>
+                        <p>{{message.body}}</p>
                     </div>
-                </div>
-                <div class="message">
-                    <div class="message__data">
-                        <p>Username</p>
-                        <p>12:00</p>
-                    </div>
-                    <div class="message__body">
-                        <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Architecto, eligendi. Minima ipsum ut
-                            ullam
-                            magnam dignissimos odit maiores qui vero! Libero, reiciendis. Placeat totam eaque quos id fugit
-                            dolor quisquam.</p>
-                    </div>
-                </div>
-                <div class="message">
-                    <div class="message__data">
-                        <p>Username</p>
-                        <p>12:00</p>
-                    </div>
-                    <div class="message__body">
-                        <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Architecto, eligendi. Minima ipsum ut
-                            ullam
-                            magnam dignissimos odit maiores qui vero! Libero, reiciendis. Placeat totam eaque quos id fugit
-                            dolor quisquam.</p>
-                    </div>
-                </div>
-                <div class="message">
-                    <div class="message__data">
-                        <p class="admin-user">Username</p>
-                        <p>12:00</p>
-                    </div>
-                    <div class="message__body">
-                        <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Architecto, eligendi. Minima ipsum ut
-                            ullam
-                            magnam dignissimos odit maiores qui vero! Libero, reiciendis. Placeat totam eaque quos id fugit
-                            dolor quisquam.</p>
-                    </div>
+                    {% endfor %}
                 </div>
                 <div class="message">
                     <div class="message__data">
@@ -79,12 +44,61 @@
             <div class="chat__input">
                 <textarea name="message" id="id_message" rows="10" placeholder="Текст сообщения"></textarea>
                 <button type="submit">Отправить</button>
+                {{ dialog|json_script:"dialog" }}
+                <button id="close-chat" type="button">Завершить диалог</button>
             </div>
         </div>
     </main>
-    <footer></footer>
 
 
+<script>
+        const dialog = JSON.parse(document.getElementById('dialog').textContent);
+
+        const chatSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/chat/'
+            + dialog
+            + '/'
+        );
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            document.querySelector('#chat-log').value += (data.message + '\n');
+        };
+
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+        document.querySelector('#chat-message-input').focus();
+        document.querySelector('#chat-message-input').onkeyup = function(e) {
+            if (e.keyCode === 13) {  // enter, return
+                document.querySelector('#chat-message-submit').click();
+            }
+        };
+
+        document.querySelector('#chat-message-submit').onclick = function(e) {
+            const messageInputDom = document.querySelector('#chat-message-input');
+            const message = messageInputDom.value;
+            chatSocket.send(JSON.stringify({
+                'message': message,
+                'user': document.querySelector('#chat-message-user').value
+            }));
+            messageInputDom.value = '';
+        };
+
+        function closeChat(event) {
+            chatSocket.send(JSON.stringify({
+                'action': 'close',
+                'chat': dialog
+            }));
+            chatSocket.close()
+            let user = document.querySelector('#chat-message-user').value
+            window.location = `/number/`
+        }
+
+        document.querySelector('#close-chat').addEventListener('click', closeChat)
+    </script>
 </body>
-
 </html>
