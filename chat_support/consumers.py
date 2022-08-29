@@ -44,8 +44,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message = text_data_json['message']
         username = text_data_json['user']
 
-
-        print(username)
         # send_telegram(message)
         await self.write_message(message, username)
 

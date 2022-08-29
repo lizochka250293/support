@@ -1,10 +1,8 @@
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
-# from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
 from django.forms import Textarea
-from django.utils.safestring import mark_safe
 from .models import User, RatingStar, Rating
-
+from django.core.exceptions import ValidationError
 
 class RegisterUserForm(UserCreationForm):
     username = forms.CharField(label='Табельный номер', widget=forms.TextInput(attrs={'class': 'form-input'})),
@@ -19,6 +17,7 @@ class RegisterUserForm(UserCreationForm):
             'password1': forms.PasswordInput(attrs={'class': 'form-input'}),
             'password2': forms.PasswordInput(attrs={'class': 'form-input'}),
         }
+
 
 
 class PasswordReset(forms.Form):

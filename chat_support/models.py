@@ -3,6 +3,8 @@ from decimal import Decimal
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+from chat_support.validator import username_validator
+
 
 class StarChoises(models.IntegerChoices):
     ONE = 1, 'одна звезда'
@@ -24,6 +26,8 @@ class RatingStar(models.Model):
 
 
 class User(AbstractUser):
+
+    username = models.CharField('табельный номер', validators=[username_validator], max_length=13, unique=True)
 
     def __str__(self):
         return self.username
