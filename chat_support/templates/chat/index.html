@@ -34,7 +34,7 @@
             <form method="POST">
                 {% csrf_token %}
                 <input hidden id="dialog" name="dialog" value="{{dialog.id}}">
-                {{form}}
+                <div class="form">{{form.as_p}}</div>
             <button type="submit" class="btn.btn-primary">Добавить</button>
             </form>
             {% endif %}

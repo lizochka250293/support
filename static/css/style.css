@@ -153,3 +153,8 @@ color:#000000;
   background-size: 30px 30px;
   transition: opacity 0.2s linear;
 }
+
+.form > p {
+    display: flex;
+    flex-direction: column;
+}

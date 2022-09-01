@@ -5,7 +5,7 @@ from channels.generic.http import AsyncHttpConsumer
 from channels.generic.websocket import AsyncWebsocketConsumer
 from django.contrib.auth import get_user_model
 
-from chat_support.models import ChatMessage, ChatDialog
+from chat_support.models import ChatMessage, ChatDialog, User
 
 user = get_user_model()
 
@@ -42,7 +42,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return
 
         message = text_data_json['message']
-        username = text_data_json['user']
+        # username = text_data_json['user']
+        username = self.scope["user"]
+        print(username, type(username))
+        print('name', username)
 
         # send_telegram(message)
         await self.write_message(message, username)
@@ -52,7 +55,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             self.room_group_name,
             {
                 'type': 'chat_message',
-                'message': message
+                'message': message,
+                'username': await self.get_username(username)
             }
         )
 
@@ -61,8 +65,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message = event['message']
         # Send message to WebSocket
         await self.send(text_data=json.dumps({
-            'message': message
+            'message': event['message'],
+            'username': event['username']
         }))
+
+
+    @database_sync_to_async
+    def get_username(self, username):
+        user = User.objects.get(username=username).username
+        print(user)
+        return user
 
     @database_sync_to_async
     def write_message(self, message, username):

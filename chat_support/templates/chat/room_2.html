@@ -14,10 +14,10 @@
     <header></header>
     <main>
         <div class="chat-box">
-            <div class="messages">
+            <div class="messages" id="list_message">
+                {% for message in messages %}
                 <div class="message">
                     <div class="message__data">
-                        {% for message in messages %}
                         {% if not message.author.is_stuff %}
                         <p>Username {{message.author}}</p>
                         {% endif %}
@@ -26,24 +26,13 @@
                     <div class="message__body">
                         <p>{{message.body}}</p>
                     </div>
-                    {% endfor %}
                 </div>
-                <div class="message">
-                    <div class="message__data">
-                        <p class="admin-user">Username</p>
-                        <p>12:00</p>
-                    </div>
-                    <div class="message__body">
-                        <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Architecto, eligendi. Minima ipsum ut
-                            ullam
-                            magnam dignissimos odit maiores qui vero! Libero, reiciendis. Placeat totam eaque quos id fugit
-                            dolor quisquam.</p>
-                    </div>
-                </div>
+                {% endfor %}
             </div>
             <div class="chat__input">
                 <textarea name="message" id="id_message" rows="10" placeholder="Текст сообщения"></textarea>
-                <button type="submit">Отправить</button>
+                <input type="file" id="id_image">
+                <button type="submit" id="btn-send">Отправить</button>
                 {{ dialog|json_script:"dialog" }}
                 <button id="close-chat" type="button">Завершить диалог</button>
             </div>
@@ -53,6 +42,9 @@
 
 <script>
         const dialog = JSON.parse(document.getElementById('dialog').textContent);
+        const listMessage = document.getElementById('list_message')
+        document.getElementById('btn-send').addEventListener('click', sendMessage)
+        document.querySelector('#close-chat').addEventListener('click', closeChat)
 
         const chatSocket = new WebSocket(
             'ws://'
@@ -64,7 +56,23 @@
 
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
-            document.querySelector('#chat-log').value += (data.message + '\n');
+            console.log(data)
+            const frag = document.createRange().createContextualFragment(
+            `
+            <div class="message">
+                <div class="message__data">
+                    <p class="admin-user">${data.username}</p>
+                    <p>12:00</p>
+                </div>
+                <div class="message__body">
+                    <p>${data.message}</p>
+                </div>
+            </div>
+            `
+            );
+            listMessage.appendChild(frag)
+
+            //document.querySelector('#chat-log').value += (data.message + '\n');
         };
 
         chatSocket.onclose = function(e) {
@@ -81,6 +89,10 @@
         document.querySelector('#chat-message-submit').onclick = function(e) {
             const messageInputDom = document.querySelector('#chat-message-input');
             const message = messageInputDom.value;
+            const fileInputDom = document.querySelector('#id_image');
+            const fileData = fileInputDom.files[0];
+            chatSocket.send(fileData);
+
             chatSocket.send(JSON.stringify({
                 'message': message,
                 'user': document.querySelector('#chat-message-user').value
@@ -94,11 +106,20 @@
                 'chat': dialog
             }));
             chatSocket.close()
-            let user = document.querySelector('#chat-message-user').value
+            // let user = document.querySelector('#chat-message-user').value
             window.location = `/number/`
         }
 
-        document.querySelector('#close-chat').addEventListener('click', closeChat)
+
+
+        function sendMessage() {
+            let message = document.getElementById('id_message')
+            console.log(message)
+            chatSocket.send(JSON.stringify({
+                'message': message.value
+            }));
+            message.value = ''
+        }
     </script>
 </body>
 </html>
