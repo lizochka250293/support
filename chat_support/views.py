@@ -112,7 +112,7 @@ class PersonalArea(LoginRequiredMixin, FormMixin, ListView):
 class PersonalRoom(LoginRequiredMixin, DetailView):
     """Комната"""
     model = ChatDialog
-    template_name = 'chat/room_2.html'
+    template_name = 'chat/room.html'
     pk_url_kwarg = 'room_id'
 
     def get_context_data(self, **kwargs):
@@ -146,7 +146,10 @@ class ChatDialogCreateApiView(generics.CreateAPIView):
 def detail_dialog(request, pk):
     """Детали диалога для сцперпользователя"""
     dialog = ChatMessage.objects.filter(dialog_id=pk)
-    return render(request, 'chat/detail_dialog.html', {'dialog': dialog})
+    users = User.objects.all()
+    for i in dialog:
+        print(i.author_id)
+    return render(request, 'chat/detail_dialog.html', {'dialog': dialog, 'users': users})
 
 
 @login_required
@@ -157,14 +160,13 @@ def admin_rating(request):
     if request.method == 'POST':
         form = StaffForm(request.POST)
         if form.is_valid():
-            messages.add_message(request, messages.SUCCESS, 'Успешно добавлено!')
             cur_user = User.objects.filter(username=form.cleaned_data['username'])
-            user = cur_user[0]
-            if user:
+            if len(cur_user) != 0:
+                user = cur_user[0]
                 User.objects.filter(username=form.cleaned_data['username']).update(is_staff=True)
+                messages.add_message(request, messages.SUCCESS, 'Успешно добавлено!')
                 return render(request, 'chat/admin_list.html', {'users': users, 'form': form})
             else:
-                messages.add_message(request, messages.SUCCESS, 'Пользователь не зарегистрирован')
                 return redirect('register')
     else:
         form = StaffForm()
@@ -187,6 +189,17 @@ def admin_detail(request, slug):
         dict_dialog[i.dialog_id].append(rating.star_2_id)
     print(dict_dialog)
     return render(request, 'chat/admin_detail.html', {'user': user, 'dict_dialog': dict_dialog})
+
+@login_required
+def admin_delete(request, slug):
+    """Удаление администратора суперпользователем на главной странице"""
+    user = User.objects.get(username=slug)
+    users = User.objects.filter(is_staff=True)
+    user.is_staff = False
+    user.save()
+    print(user.is_staff)
+    return redirect('admin_rating')
+
 
 
 # def send_telegram(text: str, number: str):

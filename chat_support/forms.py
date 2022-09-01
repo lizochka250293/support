@@ -48,4 +48,3 @@ class RatingForm(forms.ModelForm):
 
 class StaffForm(forms.Form):
     username = forms.IntegerField(label='Табельный номер', widget=forms.TextInput(attrs={'class': 'form-input'}))
-

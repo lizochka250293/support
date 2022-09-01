@@ -1,7 +1,33 @@
-{% extends "chat/base.html" %}
-{% block content %}
-{% for item in dialog %}
-    {{item.author_id}}
-    {{item.body}}
-{% endfor %}
-{% endblock %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <title>Чат</title>
+</head>
+
+<body>
+    <header></header>
+    <main>
+        <div class="chat-box">
+            <div class="messages" id="list_message">
+                {% for item in dialog %}
+                <div class="message">
+                    <div class="message__data">
+                        <p>Username {{item.author_id}}</p>
+                        <p>{{item.create_at}}</p>
+                    </div>
+                    <div class="message__body">
+                        <p>{{item.body}}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </main>
+</body>
+</html>

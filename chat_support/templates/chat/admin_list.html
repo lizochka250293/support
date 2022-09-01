@@ -17,15 +17,9 @@
 
 {% for user in users %}
 <div>
-    <p>{{ user.username }}</p>
-    <p>{{ user.get_rating }}</p>
+    <p><a href="{% url 'admin_detail' user.username  %}">Посмотреть диалоги пользователя{{user.username }}</a> - {{ user.get_rating }}</p>
 </div>
 {% endfor %}
 
-{% for k, v in rating.items %}
-    {% for i in v %}
-<p><a href="{% url 'admin_detail' k %}">Посмотреть детали {{k}}</a> - {{i}}</p>
-    {% endfor %}
-{% endfor %}
 
 {% endblock %}

@@ -1,7 +1,15 @@
 {% extends "chat/base.html" %}
 {% block content %}
-{{user}}
+<div class="question">
+    {{user}}
+<form action="{% url 'admin_delete' user  %}">
+      <button type="submit">Удалить аднимистратора</button>
+</form>
 {% for k, v in dict_dialog.items %}
-    <p><a href="{% url 'detail_dialog' k %}">Посмотреть диалог {{k}}</a> {{v}}</p>
+    <div>
+    <p><a href="{% url 'detail_dialog' k %}">Посмотреть диалог {{k}}</a> - {{v}}
+    </div>
 {% endfor %}
+</div>
+
 {% endblock %}
