@@ -3,22 +3,22 @@
 
         <a href="{% url 'logout' %}">Выйти</a>
         <div class="index">
+        <div class="flex-col">
+        {% if user.is_staff %}
+            {% for item in all_dialogs %}
+                 <a href="{% url 'chat_room' item.id %}">Перейти в диалог {{item.id}}</a>
+            {% endfor %}
+        {% else %}
         <div>
             {% csrf_token %}
             <textarea cols="60" rows="5" id="message" name="message" placeholder="Введите текст"></textarea>
             <button class="index_button" type="button" onclick="enterRoom()">Войти</button>
         </div>
-        {% if user.is_staff %}
-            <p>Hello, admin.</p>
-            {% for item in all_dialogs %}
-                 <a href="{% url 'room' item.id %}">Перейти в диалог {{item.id}}</a>
-            {% endfor %}
-        {% else %}
-            <p>Hello, ordinary visitor.</p>
+
         <div>
             {% for dialog_a in dialogs_active %}
             <ul>
-                <li><a href="{% url 'room' dialog_a.id %}">Перейти в диалог {{dialog_a.id}}</a></li>
+                <li><a href="{% url 'chat_room' dialog_a.id %}">Перейти в диалог {{dialog_a.id}}</a></li>
             </ul>
             {% endfor %}
         </div>
@@ -42,6 +42,7 @@
         </div>
         {% endif %}
         {% endif %}
+                </div>
         </div>
 
 
@@ -66,7 +67,7 @@
             })
             .then((response) => response.json())
             .then((data) => {
-                window.location.href = '/chat/' + data.dialog + '/';
+                window.location.href = '/chat_room/' + data.dialog + '/';
             });
     }
 </script>

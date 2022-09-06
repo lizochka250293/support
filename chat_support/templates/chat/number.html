@@ -16,9 +16,12 @@
             {% endfor %}
             <button type="submit">Войти</button>
         </form>
-        <div class="button_reg"><a href="{% url 'register' %}"> Регистрация</a></div>
+        <div class="downside-links">
+            <div class="button_reg"><a href="{% url 'register' %}"> Регистрация</a></div>
 
-        <div class="button_forget"><a href="{% url 'password_reset' %}"><i>Забыли пароль?</i></a></div>
+            <div class="button_forget"><a href="{% url 'password_reset' %}"><i>Забыли пароль?</i></a></div>
+        </div>
+
 
     </div>
 </div>

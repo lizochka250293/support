@@ -1,5 +1,3 @@
-from decimal import Decimal
-
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -42,9 +40,9 @@ class User(AbstractUser):
                 stars_1.append(rating.star_1.value)
                 stars_2.append(rating.star_2.value)
         if len(stars_1) and len(stars_2):
-            star_1_total = str(Decimal(str(sum(stars_1))) / Decimal(str(len(stars_1))))
+            star_1_total = str(round(round(sum(stars_1)) / round(len(stars_1)), 1))
 
-            star_2_total = str(Decimal(str(sum(stars_2))) / Decimal(str(len(stars_2))))
+            star_2_total = str(round(round(sum(stars_2)) / round(len(stars_2)), 1))
             return f'{star_1_total}, {star_2_total}'
         return 'Нет рейтинга'
 
@@ -58,6 +56,17 @@ class ChatDialog(models.Model):
 
     def check_active(self):
         return self.ratings.count()
+
+    def get_dialog_rating(self):
+        # admin = self.diaog_messages.filter(author__is_staff=True).first().author
+        ratings = self.ratings.all()
+        rating_list = []
+        for rating in ratings:
+            rating_list.append(str(rating.star_1.value))
+            rating_list.append(str(rating.star_2.value))
+            rating_list.append(str(rating.comment))
+        return ', '.join(rating_list)
+
 
     class Meta:
         verbose_name = 'Диалог'

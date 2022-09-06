@@ -25,13 +25,22 @@ class PasswordReset(forms.Form):
     password = forms.CharField(label='Пароль', widget=forms.PasswordInput(attrs={'class': 'form-input'}))
     password_1 = forms.CharField(label='Повтор пароля', widget=forms.PasswordInput(attrs={'class': 'form-input'}))
 
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get('password')
+        password_1 = cleaned_data.get('password_1')
+        if password != password_1:
+            raise ValidationError('Пароли не совпадают')
+        return self.cleaned_data
+
+
 class RatingForm(forms.ModelForm):
 
-    star_1 = forms.ModelChoiceField(label='Оценка скорости обслуживания',
+    star_1 = forms.ModelChoiceField(label='Насколько быстро ответили на Ваш вопрос?',
         queryset=RatingStar.objects.all(), widget=forms.RadioSelect(attrs={'class':'selector'}), empty_label=None,
 
     )
-    star_2 = forms.ModelChoiceField(label='Оценка еще чего-то',
+    star_2 = forms.ModelChoiceField(label='Получили ли вы ответ на свой вопрос?',
         queryset=RatingStar.objects.all(), widget=forms.RadioSelect(attrs={'class':'selector'}), empty_label=None,
 
     )

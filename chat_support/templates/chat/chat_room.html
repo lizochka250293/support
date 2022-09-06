@@ -62,7 +62,7 @@
             <div class="message">
                 <div class="message__data">
                     <p class="admin-user">${data.username}</p>
-                    <p>12:00</p>
+                    <p>${data.create_at}</p>
                 </div>
                 <div class="message__body">
                     <p>${data.message}</p>
@@ -107,7 +107,7 @@
             }));
             chatSocket.close()
             // let user = document.querySelector('#chat-message-user').value
-            window.location = `/number/`
+            window.location = `/user_room/`
         }
 
 

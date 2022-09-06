@@ -5,12 +5,8 @@
 <form action="{% url 'admin_delete' user  %}">
       <button type="submit">Удалить аднимистратора</button>
 </form>
-{% for k, v in dict_dialog.items %}
-    <div>
-        {% for i in v %}
-    <p><a href="{% url 'detail_dialog' k %}">Посмотреть диалог {{k}}</a> - {{i}}
-        {% endfor %}
-    </div>
+{% for dialog in dialogs %}
+    <p><a href="{% url 'detail_dialog' dialog.id %}">Посмотреть диалог {{dialog.id}}</a> - {{ dialog.get_dialog_rating }}</p>
 {% endfor %}
 </div>
 

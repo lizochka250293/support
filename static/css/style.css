@@ -1,10 +1,19 @@
 body {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    // justify-content: space-between;
 }
 .question {
     margin: auto;
+}
+
+.flex-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.items-center {
+    align-items: center;
 }
 
 .title {
@@ -59,15 +68,13 @@ ul.reg_list li {
     min-width: 150px;
 }
 
-.button_reg {
-    float: left;
-}
-
-.button_forget {
-    float: right;
+.downside-links {
+    display: flex;
+    justify-content: space-between;
 }
 
 .index {
+    margin: 20px;
     margin-left: auto;
     margin-right: auto;
 }
@@ -195,24 +202,7 @@ color:#000000;
   margin-right: -100%;
 }
 
-.rating > label {
-  position: relative;
-  display: block;
-  float: right;
-  background: url('../img/star-off-big.png');
-  background-size: 30px 30px;
-}
 
-.rating > label:before {
-  display: block;
-  opacity: 0;
-  content: '';
-  width: 30px;
-  height: 30px;
-  background: url('../img/star-on-big.png');
-  background-size: 30px 30px;
-  transition: opacity 0.2s linear;
-}
 
 .form > p {
     display: flex;

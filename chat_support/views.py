@@ -54,11 +54,7 @@ def password_reset(request):
             username = form.cleaned_data['username']
             password = form.cleaned_data['password']
             password_1 = form.cleaned_data['password_1']
-            if password != password_1:
-                raise TypeError('Пароли не совпадают.')
             user = User.objects.get(username=username)
-            if user is None:
-                raise TypeError('Пользователь не найден. Введите кооректно табельный номер.')
             user.set_password(password)
             user.save(update_fields=["password"])
             return redirect('title')
@@ -70,7 +66,7 @@ def password_reset(request):
 class PersonalArea(LoginRequiredMixin, FormMixin, ListView):
     """Личный кабинет"""
     model = ChatMessage
-    template_name = 'chat/index.html'
+    template_name = 'chat/user_room.html'
     context_object_name = "messages"
     form_class = RatingForm
 
@@ -92,7 +88,7 @@ class PersonalArea(LoginRequiredMixin, FormMixin, ListView):
         return context
 
     def get_success_url(self):
-        return reverse('index')
+        return reverse('user_room')
 
     def post(self, request, *args, **kwargs):
         form = self.get_form()
@@ -101,7 +97,6 @@ class PersonalArea(LoginRequiredMixin, FormMixin, ListView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         dialod_id = self.request.POST.get('dialog')
-        print(dialod_id)
         dialog = get_object_or_404(ChatDialog, id=dialod_id)
         self.object.dialog = dialog
         self.object.is_actives = False
@@ -112,7 +107,7 @@ class PersonalArea(LoginRequiredMixin, FormMixin, ListView):
 class PersonalRoom(LoginRequiredMixin, DetailView):
     """Комната"""
     model = ChatDialog
-    template_name = 'chat/room.html'
+    template_name = 'chat/chat_room.html'
     pk_url_kwarg = 'room_id'
 
     def get_context_data(self, **kwargs):
@@ -145,11 +140,13 @@ class ChatDialogCreateApiView(generics.CreateAPIView):
 @login_required
 def detail_dialog(request, pk):
     """Детали диалога для суперпользователя"""
-    dialog = ChatMessage.objects.select_related('author').filter(dialog_id=pk)
+    print(pk)
+    dialog_messages = ChatMessage.objects.select_related('author').filter(dialog_id=pk)
+    print(dialog_messages)
     users = User.objects.all()
     # for i in dialog:
     #     # print(i.author_id)
-    return render(request, 'chat/detail_dialog.html', {'dialog': dialog, 'users': users})
+    return render(request, 'chat/detail_dialog.html', {'dialog': dialog_messages, 'users': users})
 
 
 @login_required
@@ -177,22 +174,12 @@ def admin_rating(request):
 def admin_detail(request, slug):
     """Страница суперпользователя с рейтингом админа"""
     user = User.objects.get(username=slug)
-    print(user.id)
-    dialog = ChatMessage.objects.filter(author_id=user.id)
-    dict_dialog = {}
-    for i in dialog:
-        dict_dialog[i.dialog_id] = []
-        print(i.dialog_id)
-        dict_2 = {}
-        dict_3 = {}
-        rating = Rating.objects.get(dialog_id=i.dialog_id)
-        print(rating.star_1_id)
-        dict_2['оценка_1'] = rating.star_1_id
-        dict_3['оценка_2'] = rating.star_2_id
-        dict_dialog[i.dialog_id].append(dict_2)
-        dict_dialog[i.dialog_id].append(dict_3)
-    print(dict_dialog)
-    return render(request, 'chat/admin_detail.html', {'user': user, 'dict_dialog': dict_dialog})
+
+    chat_messages = ChatMessage.objects.filter(author_id=user.id)
+    dialogs = set()
+    for message in chat_messages:
+        dialogs.add(message.dialog)
+    return render(request, 'chat/admin_detail.html', {'user': user, 'dialogs': dialogs})
 
 @login_required
 def admin_delete(request, slug):
