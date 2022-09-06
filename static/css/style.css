@@ -7,6 +7,66 @@ body {
     margin: auto;
 }
 
+.title {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Tahoma;
+}
+
+.title_h3 {
+    font-size: 20px;
+    margin: 0 0 20px 0;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+#reg_form {
+    width: 450px;
+    margin: 40px auto 0 auto;
+    padding: 10px;
+    background: #fff;
+    box-shadow: 5px 5px 10px #aaa;
+}
+
+#title_form {
+    width: 450px;
+    margin: 40px auto 0 auto;
+    padding: 10px;
+    background: #fff;
+    box-shadow: 5px 5px 10px #aaa;
+}
+
+#reset_password_form {
+     width: 450px;
+    margin: 40px auto 0 auto;
+    padding: 10px;
+    background: #fff;
+    box-shadow: 5px 5px 10px #aaa;
+}
+
+ul.reg_list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+ul.reg_list li {
+    margin: 10px 0 10px 0;
+}
+
+.form-label {
+    display: inline-block;
+    min-width: 150px;
+}
+
+.button_reg {
+    float: left;
+}
+
+.button_forget {
+    float: right;
+}
+
 .index {
     margin-left: auto;
     margin-right: auto;

@@ -7,7 +7,9 @@
 </form>
 {% for k, v in dict_dialog.items %}
     <div>
-    <p><a href="{% url 'detail_dialog' k %}">Посмотреть диалог {{k}}</a> - {{v}}
+        {% for i in v %}
+    <p><a href="{% url 'detail_dialog' k %}">Посмотреть диалог {{k}}</a> - {{i}}
+        {% endfor %}
     </div>
 {% endfor %}
 </div>

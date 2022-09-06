@@ -144,17 +144,17 @@ class ChatDialogCreateApiView(generics.CreateAPIView):
 
 @login_required
 def detail_dialog(request, pk):
-    """Детали диалога для сцперпользователя"""
-    dialog = ChatMessage.objects.filter(dialog_id=pk)
+    """Детали диалога для суперпользователя"""
+    dialog = ChatMessage.objects.select_related('author').filter(dialog_id=pk)
     users = User.objects.all()
-    for i in dialog:
-        print(i.author_id)
+    # for i in dialog:
+    #     # print(i.author_id)
     return render(request, 'chat/detail_dialog.html', {'dialog': dialog, 'users': users})
 
 
 @login_required
 def admin_rating(request):
-    """Регистрация нового администратора суперпользователем на главной странице"""
+    """Регистрация нового администратора суперпользователем на главной странице и рейтинг всех админов"""
     rating = Rating.objects.all()
     users = User.objects.filter(is_staff=True)
     if request.method == 'POST':
@@ -175,7 +175,7 @@ def admin_rating(request):
 
 @login_required
 def admin_detail(request, slug):
-    """Титульная страница суперпользователя с рейтингом админов"""
+    """Страница суперпользователя с рейтингом админа"""
     user = User.objects.get(username=slug)
     print(user.id)
     dialog = ChatMessage.objects.filter(author_id=user.id)
@@ -183,10 +183,14 @@ def admin_detail(request, slug):
     for i in dialog:
         dict_dialog[i.dialog_id] = []
         print(i.dialog_id)
+        dict_2 = {}
+        dict_3 = {}
         rating = Rating.objects.get(dialog_id=i.dialog_id)
         print(rating.star_1_id)
-        dict_dialog[i.dialog_id].append(rating.star_1_id)
-        dict_dialog[i.dialog_id].append(rating.star_2_id)
+        dict_2['оценка_1'] = rating.star_1_id
+        dict_3['оценка_2'] = rating.star_2_id
+        dict_dialog[i.dialog_id].append(dict_2)
+        dict_dialog[i.dialog_id].append(dict_3)
     print(dict_dialog)
     return render(request, 'chat/admin_detail.html', {'user': user, 'dict_dialog': dict_dialog})
 

@@ -1,12 +1,21 @@
 {% extends "chat/base.html" %}
 {% block content %}
-<h1>Регистрация</h1>
-<form method="POST">
-  {% csrf_token %}
-{% for f in form %}
-<p><label class="'form-label" for="{{ f.id_for_label }}">{{f.label}}:</label>{{f}}</p>
-<div class="from-error">{{f.errors}}</div>
-{% endfor %}
-  <button type="submit">Регистрация</button>
-</form>
+<div class="title">
+    <div id="reg_form">
+        <div class="title_h3">
+            <h3>Регистрация </h3>
+        </div>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-error">{{ form.non_field_errors }}</div>
+            {% for f in form %}
+            <ul class="reg_list">
+                <li><p><label class="form-label" for="{{ f.id_for_label }}">{{f.label}}:</label>{{f}}</p></li>
+            </ul>
+            <div class="from-error">{{f.errors}}</div>
+            {% endfor %}
+            <button type="submit">Регистрация</button>
+        </form>
+    </div>
+</div>
 {% endblock %}

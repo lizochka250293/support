@@ -26,7 +26,6 @@ class RatingStar(models.Model):
 
 
 class User(AbstractUser):
-
     username = models.CharField('табельный номер', validators=[username_validator], max_length=13, unique=True)
 
     def __str__(self):
