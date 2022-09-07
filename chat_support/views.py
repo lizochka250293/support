@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView
+from django.contrib.sites import requests
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, redirect
 from django.urls import reverse, reverse_lazy
@@ -14,6 +15,7 @@ from rest_framework import generics
 from chat_support.forms import RegisterUserForm, RatingForm, PasswordReset, StaffForm
 from chat_support.models import ChatMessage, ChatDialog, User, Rating
 from chat_support.serializers import ChatMessageSerializer
+from chat_support.services import send_telegram
 
 
 def login_out(reguest):
@@ -25,7 +27,7 @@ def login_out(reguest):
 class LoginViewList(LoginView):
     """Титульная страница аунтефикации"""
     form_class = AuthenticationForm
-    template_name = 'chat/number.html'
+    template_name = 'chat/title.html'
 
 
 @login_required
@@ -34,6 +36,8 @@ def question(request):
     name = request.user.username
     if request.user.is_superuser:
         return redirect('admin_rating')
+    elif request.user.is_staff:
+        return redirect('user_room')
     else:
         context = {'room_id': name}
         return render(request=request, template_name='chat/question.html', context=context)
@@ -134,7 +138,7 @@ class ChatDialogCreateApiView(generics.CreateAPIView):
         chat_dialog = ChatDialog.objects.create()
         message = serializer.save(author=self.request.user, dialog=chat_dialog)
         # В телегу отправляем здесь
-        # send_telegram(text=f'{message.body}', number=f'{chat_dialog.id}')
+        send_telegram(text=f'{message.body}', number=f'{chat_dialog.id}')
 
 
 @login_required
@@ -144,8 +148,6 @@ def detail_dialog(request, pk):
     dialog_messages = ChatMessage.objects.select_related('author').filter(dialog_id=pk)
     print(dialog_messages)
     users = User.objects.all()
-    # for i in dialog:
-    #     # print(i.author_id)
     return render(request, 'chat/detail_dialog.html', {'dialog': dialog_messages, 'users': users})
 
 
@@ -193,15 +195,3 @@ def admin_delete(request, slug):
 
 
 
-# def send_telegram(text: str, number: str):
-"""Отправка в тг"""
-#     api_token = ""
-#     url = "https://api.telegram.org/bot"
-#     channel_id = ""
-#     url += api_token
-#     method = url + "/sendMessage"
-#     to_send = f'{text}, http://127.0.0.1:8000/chat/{number}/'
-#     r = requests.post(method, data={
-#         "chat_id": channel_id,
-#         "text": to_send
-#     })

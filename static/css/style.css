@@ -108,7 +108,7 @@ li {
 .message__data {
     display: flex;
     justify-content: space-between;
-    padding: 10px;
+    padding: 0 10px 0 10px;
     border-bottom: 1px solid black;
 }
 
@@ -202,12 +202,15 @@ color:#000000;
   margin-right: -100%;
 }
 
-
-
 .form > p {
     display: flex;
     flex-direction: column;
 }
+
 .admin_dialog_detail {
     margin: 20px 0 0 20px;
+}
+
+.chat_room_h3 {
+    color: red;
 }
