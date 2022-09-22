@@ -58,7 +58,6 @@ class ChatDialog(models.Model):
         return self.ratings.count()
 
     def get_dialog_rating(self):
-        # admin = self.diaog_messages.filter(author__is_staff=True).first().author
         ratings = self.ratings.all()
         rating_list = []
         for rating in ratings:
