@@ -21,7 +21,7 @@ class RegisterUserForm(UserCreationForm):
 
 
 class PasswordReset(forms.Form):
-    username = forms.CharField(label='Табельный номер', widget=forms.TextInput(attrs={'class': 'form-input'}))
+    email = forms.CharField(label='Электронная почта', widget=forms.TextInput(attrs={'class': 'form-input'}))
     password = forms.CharField(label='Пароль', widget=forms.PasswordInput(attrs={'class': 'form-input'}))
     password_1 = forms.CharField(label='Повтор пароля', widget=forms.PasswordInput(attrs={'class': 'form-input'}))
 

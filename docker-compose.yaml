@@ -4,25 +4,35 @@ services:
   redis:
     image: redis
     restart: always
+    ports:
+      - "6379:6379"
 
   webapp:
     restart: always
     build: .
     volumes:
       - ./:/app
+      - static_volume:/app/static
+      - media_volume:/app/media
     ports:
       - "8000:8000"
     command: >
-      sh -c "python manage.py makemigrations &&
+      sh -c "python manage.py makemigrations --noinput && 
       python manage.py migrate
-      && python manage.py runserver 0.0.0.0:8000"
+      && daphne -b 0.0.0.0 -p 8000 chat.asgi:application"
 
-  worker:
-    restart: always
-    build: .
+
+  nginx:
+    build: ./nginx
+    ports:
+      - 80:80
     volumes:
-      - ./:/app
+      - static_volume:/app/static
+      - media_volume:/app/media
     depends_on:
-      - redis
       - webapp
-    command: 'celery -A toy_shop worker -l info'
+
+
+volumes:
+  static_volume:
+  media_volume:

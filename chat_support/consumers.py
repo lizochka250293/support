@@ -16,9 +16,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.room_name = self.scope['url_route']['kwargs']['room_name']
         self.room_group_name = 'chat_%s' % self.room_name
         self.sen = self.scope["session"]
-        print(self.sen.session_key)
-        # self.user = self.scope["user"]
-        # Join room group
+
 
         await self.channel_layer.group_add(
             self.room_group_name,
@@ -42,12 +40,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             return
 
         message = text_data_json['message']
-        # username = text_data_json['user']
         username = self.scope["user"]
-        print(username, type(username))
-        print('name', username)
 
-        # send_telegram(message)
         await self.write_message(message, username)
 
         # Send message to room group
@@ -73,7 +67,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def get_username(self, username):
         user = User.objects.get(username=username).username
-        print(user)
         return user
 
     @database_sync_to_async

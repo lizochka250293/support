@@ -55,10 +55,10 @@ def password_reset(request):
     if request.method == 'POST':
         form = PasswordReset(request.POST)
         if form.is_valid():
-            username = form.cleaned_data['username']
+            email = form.cleaned_data['email']
             password = form.cleaned_data['password']
             password_1 = form.cleaned_data['password_1']
-            user = User.objects.get(username=username)
+            user = User.objects.get(email=email)
             user.set_password(password)
             user.save(update_fields=["password"])
             return redirect('title')
@@ -117,7 +117,6 @@ class PersonalRoom(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['messages'] = ChatMessage.objects.filter(dialog=self.get_object())
-        print(context['messages'])
         context['dialog'] = self.get_object().id
         context['user'] = ''
         for i in ChatMessage.objects.filter(dialog=self.get_object()):
@@ -144,9 +143,7 @@ class ChatDialogCreateApiView(generics.CreateAPIView):
 @login_required
 def detail_dialog(request, pk):
     """Детали диалога для суперпользователя"""
-    print(pk)
     dialog_messages = ChatMessage.objects.select_related('author').filter(dialog_id=pk)
-    print(dialog_messages)
     users = User.objects.all()
     return render(request, 'chat/detail_dialog.html', {'dialog': dialog_messages, 'users': users})
 
@@ -190,7 +187,6 @@ def admin_delete(request, slug):
     users = User.objects.filter(is_staff=True)
     user.is_staff = False
     user.save()
-    print(user.is_staff)
     return redirect('admin_rating')
 
 
