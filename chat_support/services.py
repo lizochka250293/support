@@ -1,7 +1,7 @@
 import requests
-from .token import api_token, channel_id
+from .token import api_token, channel_id, host
 API = api_token
-HOST = 'https://retail-support.rendez-vous.ru'
+HOST = host
 CHANNEL = channel_id
 def send_telegram(text: str, number: str):
     """Отправка в тг"""
