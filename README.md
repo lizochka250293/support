@@ -1,7 +1,7 @@
 # Чат поддержки сотрудников
 
 ## Backend:
-Python 3.10, Django Channels, POSTGRES
+Python 3.10, Django Channels
 
 Подробный перечень используемых библиотек находятся в файле requirements.txt
 
